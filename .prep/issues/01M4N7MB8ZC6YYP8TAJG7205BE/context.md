@@ -1,0 +1,1 @@
+Better Auth's official `username` plugin provides username sign-in ([Editor sign-in and accounts](/features/editor-accounts.md)). Better Auth's core user table requires a unique `email`, so the column remains, filled with a placeholder on a reserved domain.

@@ -6,17 +6,17 @@ import { auth } from '#lib/server/auth.ts';
 
 export const signIn = form(
 	v.object({
-		email: v.pipe(v.string(), v.trim(), v.email('Enter your email address.')),
+		username: v.pipe(v.string(), v.trim(), v.minLength(1, 'Enter your username.')),
 		// Leading underscore: Kit never sends a password back to the browser.
 		_password: v.pipe(v.string(), v.minLength(1, 'Enter your password.'))
 	}),
-	async ({ email, _password }) => {
+	async ({ username, _password }) => {
 		const { request } = getRequestEvent();
 		try {
 			// The sveltekitCookies plugin sets the session cookie on this request.
-			await auth.api.signInEmail({ body: { email, password: _password }, headers: request.headers });
+			await auth.api.signInUsername({ body: { username, password: _password }, headers: request.headers });
 		} catch (error) {
-			if (error instanceof APIError) invalid('Wrong email or password.');
+			if (error instanceof APIError) invalid('Wrong username or password.');
 			throw error;
 		}
 		redirect(303, '/');

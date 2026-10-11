@@ -35,6 +35,6 @@ Personal fields (height, birthplace, residence, profession) are deliberately abs
 
 ## Storage
 
-Table `profile` (`src/lib/server/db/schema.ts`): `player_id` (text primary key, the canonical fpa-api player id at write time), `legacy_id` (the old WordPress `wp_players.player_id`, indexed, never exported), `fields` (`jsonb`, typed as `ProfileFields`), `created_at`, `updated_at`, `updated_by` (editor email, or `import`). Accessors live in `src/lib/server/profiles.ts` (`getProfile`, `profiledPlayerIds`, `saveProfile` as an upsert, `buildExport`).
+Table `profile` (`src/lib/server/db/schema.ts`): `player_id` (text primary key, the canonical fpa-api player id at write time), `legacy_id` (the old WordPress `wp_players.player_id`, indexed, never exported), `fields` (`jsonb`, typed as `ProfileFields`), `created_at`, `updated_at`, `updated_by` (editor username, or `import`). Accessors live in `src/lib/server/profiles.ts` (`getProfile`, `profiledPlayerIds`, `saveProfile` as an upsert, `buildExport`).
 
 Players themselves are never stored here; they come from fpa-api (`src/lib/server/fpa-api.ts`). See [Separate editor app on Postgres](/decisions/separate-editor-app.md).

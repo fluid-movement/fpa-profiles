@@ -54,7 +54,8 @@ export const saveProfile = form(ProfileForm, async (data, issue) => {
 		invalid(...issues.map((problem) => fieldIssue[problem.key](problem.message)));
 	}
 
-	await storeProfile(player.id, fields, editor.email);
+	// Usernames are required for editors; the id is a fallback for safety.
+	await storeProfile(player.id, fields, editor.username ?? editor.id);
 	await getEditor(data.playerId).refresh();
 	void requestRefresh();
 

@@ -1,0 +1,4 @@
+- [x] The user table has a unique username column; editors are created, reset and removed by username
+- [x] The sign-in form asks for username and password and signs in through Better Auth
+- [x] No form, script output or page shows or asks for an email
+- [x] Saves are attributed to the username

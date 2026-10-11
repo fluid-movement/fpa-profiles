@@ -17,9 +17,16 @@
 		<form {...signIn}>
 			<Field.Group>
 				<Field.Field>
-					<Field.Label for="email">Email</Field.Label>
-					<Input id="email" {...signIn.fields.email.as('email')} autocomplete="username" required />
-					<Field.Error errors={signIn.fields.email.issues()} />
+					<Field.Label for="username">Username</Field.Label>
+					<Input
+						id="username"
+						{...signIn.fields.username.as('text')}
+						autocomplete="username"
+						autocapitalize="none"
+						spellcheck="false"
+						required
+					/>
+					<Field.Error errors={signIn.fields.username.issues()} />
 				</Field.Field>
 				<Field.Field>
 					<Field.Label for="password">Password</Field.Label>

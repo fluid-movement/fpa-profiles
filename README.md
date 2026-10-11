@@ -8,7 +8,7 @@ Editor for FPA player profiles. Players come from [fpa-api](https://github.com/f
 pnpm install
 cp .env.example .env   # point DATABASE_URL at a Postgres database
 pnpm migrate           # apply the migrations in drizzle/
-pnpm users create you@example.com "Your Name"   # prints a password
+pnpm users create yourname "Your Name"   # prints a password
 pnpm dev               # http://localhost:5173
 ```
 
@@ -30,14 +30,16 @@ Fields are defined in one place, `src/lib/profile/fields.ts`. Each entry has a k
 
 ## Editor accounts
 
-There is no sign-up and the app sends no email. Accounts are managed from the terminal:
+Editors sign in with a username and password. There is no sign-up and no email. Accounts are managed from the terminal:
 
 ```bash
 pnpm users list
-pnpm users create <email> <name>    # prints a generated password
-pnpm users password <email>         # new password; signs the editor out everywhere
-pnpm users remove <email>
+pnpm users create <username> [display name]   # prints a generated password
+pnpm users password <username>                # new password; signs the editor out everywhere
+pnpm users remove <username>
 ```
+
+Usernames are 3–30 characters: lowercase letters, digits, dots, underscores, hyphens.
 
 Add `--password-stdin` to `create` or `password` to supply the password yourself. In production, run the same script inside the container: `node scripts/users.ts list`.
 

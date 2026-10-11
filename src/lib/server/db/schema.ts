@@ -17,7 +17,7 @@ export const profile = pgTable(
 		fields: jsonb('fields').$type<ProfileFields>().notNull().default({}),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-		/** Email of the editor who last saved, or `import` for the legacy import. */
+		/** Username of the editor who last saved, or `import` for the legacy import. */
 		updatedBy: text('updated_by').notNull()
 	},
 	(table) => [index('profile_legacy_id_idx').on(table.legacyId)]

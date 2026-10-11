@@ -1,0 +1,1 @@
+- 2026-10-11T10:20:13Z claude-code/opus-5.5: Verified with headless Chrome on a fresh dev server: wrong password rejected, username sign-in, edit and save attributed to the username, sign-out. users script rejects an email-shaped username. Test account removed and profiles restored from the import afterwards.

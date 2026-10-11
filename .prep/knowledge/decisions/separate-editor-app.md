@@ -28,4 +28,4 @@ Profile enrichment is edited in this separate SvelteKit application, which owns 
 
 - The JSON export is the contract between this app and fpa-api; changing it is a cross-repository change.
 - Profiles are keyed by upstream player ids that this app does not own. fpa-api resolves them through its alias map, so upstream player merges do not orphan a profile.
-- Users are managed from the terminal (over SSH in production); the app sends no email.
+- Editors sign in with a username and password and are managed from the terminal (over SSH in production); the app has no email.

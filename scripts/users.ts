@@ -1,19 +1,22 @@
 /**
- * Manage editor accounts from the terminal. The app has no sign-up and sends no
- * email, so this is the only way accounts are created or reset.
+ * Manage editor accounts from the terminal. Editors sign in with a username
+ * and password; the app has no sign-up and no email, so this is the only way
+ * accounts are created or reset.
  *
  *   pnpm users list
- *   pnpm users create <email> <name>     prints a generated password
- *   pnpm users password <email>          prints a new password, signs the editor out
- *   pnpm users remove <email>
+ *   pnpm users create <username> [display name]   prints a generated password
+ *   pnpm users password <username>                prints a new password, signs the editor out
+ *   pnpm users remove <username>
  *
  * Add --password-stdin to `create` or `password` to read the password from
  * stdin instead of generating one. In production, run it inside the container:
- *   node scripts/users.ts create editor@example.com "Editor Name"
+ *   node scripts/users.ts create andre "André"
  *
- * Rows are written in Better Auth's own shape (a `user` plus a `credential`
- * account holding the hash), using Better Auth's password hashing, so the app
- * signs these editors in like any other.
+ * Rows are written in Better Auth's own shape (a `user` with the username
+ * plugin's columns plus a `credential` account holding the hash), using Better
+ * Auth's password hashing, so the app signs these editors in like any other.
+ * Better Auth requires a unique email on every user; it gets an internal
+ * placeholder that is never shown.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { hashPassword } from 'better-auth/crypto';
@@ -21,6 +24,7 @@ import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { account, session, user } from '../src/lib/server/db/auth.schema.ts';
+import { placeholderEmail, USERNAME_PATTERN } from '../src/lib/usernames.ts';
 
 const MIN_PASSWORD_LENGTH = 12;
 
@@ -49,29 +53,41 @@ try {
 			await remove(rest[0]);
 			break;
 		default:
-			fail('usage: users list | create <email> <name> | password <email> | remove <email> [--password-stdin]');
+			fail('usage: users list | create <username> [display name] | password <username> | remove <username> [--password-stdin]');
 	}
 } finally {
 	await client.end();
 }
 
 async function list(): Promise<void> {
-	const rows = await db.select({ email: user.email, name: user.name, createdAt: user.createdAt }).from(user);
+	const rows = await db
+		.select({ username: user.username, name: user.name, createdAt: user.createdAt })
+		.from(user)
+		.orderBy(user.username);
 	if (rows.length === 0) console.log('no editors');
-	for (const row of rows) console.log(`${row.email}\t${row.name}\tcreated ${row.createdAt.toISOString()}`);
+	for (const row of rows) console.log(`${row.username}\t${row.name}\tcreated ${row.createdAt.toISOString()}`);
 }
 
-async function create(email: string | undefined, name: string): Promise<void> {
-	email = normalizeEmail(email);
-	if (!name) fail('a name is required');
-	if (await findUser(email)) fail(`${email} already exists; use "password" to reset it`);
+async function create(rawUsername: string | undefined, displayName: string): Promise<void> {
+	const username = normalizeUsername(rawUsername);
+	if (await findUser(username)) fail(`${username} already exists; use "password" to reset it`);
+	const name = displayName || username;
 
 	const password = await choosePassword();
 	const id = randomUUID();
 	const now = new Date();
 
 	await db.transaction(async (tx) => {
-		await tx.insert(user).values({ id, name, email, emailVerified: true, createdAt: now, updatedAt: now });
+		await tx.insert(user).values({
+			id,
+			name,
+			username,
+			displayUsername: rawUsername!.trim(),
+			email: placeholderEmail(username),
+			emailVerified: false,
+			createdAt: now,
+			updatedAt: now
+		});
 		await tx.insert(account).values({
 			id: randomUUID(),
 			accountId: id,
@@ -83,14 +99,14 @@ async function create(email: string | undefined, name: string): Promise<void> {
 		});
 	});
 
-	console.log(`created ${email}`);
+	console.log(`created ${username}`);
 	if (!fromStdin) console.log(`password: ${password}`);
 }
 
-async function setPassword(email: string | undefined): Promise<void> {
-	email = normalizeEmail(email);
-	const existing = await findUser(email);
-	if (!existing) fail(`no editor ${email}`);
+async function setPassword(rawUsername: string | undefined): Promise<void> {
+	const username = normalizeUsername(rawUsername);
+	const existing = await findUser(username);
+	if (!existing) fail(`no editor ${username}`);
 
 	const password = await choosePassword();
 	const hash = await hashPassword(password);
@@ -116,20 +132,20 @@ async function setPassword(email: string | undefined): Promise<void> {
 		await tx.delete(session).where(eq(session.userId, existing.id));
 	});
 
-	console.log(`password changed for ${email}; existing sessions signed out`);
+	console.log(`password changed for ${username}; existing sessions signed out`);
 	if (!fromStdin) console.log(`password: ${password}`);
 }
 
-async function remove(email: string | undefined): Promise<void> {
-	email = normalizeEmail(email);
+async function remove(rawUsername: string | undefined): Promise<void> {
+	const username = normalizeUsername(rawUsername);
 	// Accounts and sessions go with the user (on delete cascade).
-	const deleted = await db.delete(user).where(eq(user.email, email)).returning({ id: user.id });
-	if (deleted.length === 0) fail(`no editor ${email}`);
-	console.log(`removed ${email}`);
+	const deleted = await db.delete(user).where(eq(user.username, username)).returning({ id: user.id });
+	if (deleted.length === 0) fail(`no editor ${username}`);
+	console.log(`removed ${username}`);
 }
 
-async function findUser(email: string) {
-	const [row] = await db.select({ id: user.id }).from(user).where(eq(user.email, email)).limit(1);
+async function findUser(username: string) {
+	const [row] = await db.select({ id: user.id }).from(user).where(eq(user.username, username)).limit(1);
 	return row;
 }
 
@@ -143,9 +159,13 @@ async function choosePassword(): Promise<string> {
 	return password;
 }
 
-function normalizeEmail(email: string | undefined): string {
-	if (!email || !email.includes('@')) fail('a valid email is required');
-	return email.trim().toLowerCase();
+/** Lowercased, as Better Auth's username plugin stores and compares them. */
+function normalizeUsername(raw: string | undefined): string {
+	const username = raw?.trim().toLowerCase() ?? '';
+	if (!USERNAME_PATTERN.test(username)) {
+		fail('a username is required: 3-30 characters, letters, digits, dots, underscores or hyphens');
+	}
+	return username;
 }
 
 function fail(message: string): never {
