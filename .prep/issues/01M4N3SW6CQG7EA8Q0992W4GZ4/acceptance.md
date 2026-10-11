@@ -1,0 +1,1 @@
+- [x] The entry exists as a draft with the map's scope, linked from /overview.md and confirmed
