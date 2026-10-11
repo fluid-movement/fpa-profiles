@@ -6,6 +6,6 @@ build
 .env
 .env.*
 !.env.example
-*.sql
+/*.sql
 *.log
 .DS_Store
