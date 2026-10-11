@@ -8,8 +8,6 @@ tags:
   - profiles
 ---
 
-An authenticated UI to find an existing player (from fpa-api's player directory) and edit their profile. No player creation. Login through Better Auth for a single editor; public sign-up is closed. The app replaces the scaffold's demo routes and placeholder table, deploys on Coolify (Node adapter, Dockerfile), and serves the read-only JSON export fpa-api pulls. After a save it asks fpa-api to refresh.
+An authenticated UI to find an existing player (from fpa-api's player directory) and edit their profile, with the form generated from the field registry (decision 01M4N3HPMTCYQ5MY1HB5FBSFXJ). No player creation. Login through Better Auth with email and password; public sign-up is closed and the app sends no email. Editors are created and updated from the terminal (over SSH in production). The app replaces the scaffold's demo routes and placeholder table, deploys on Coolify (Node adapter, Dockerfile), and serves the read-only `GET /export` that fpa-api pulls. After a save it asks fpa-api to refresh.
 
 ## Open questions
-
-- How is the first editor account created: a seed script, or a one-time invite?
