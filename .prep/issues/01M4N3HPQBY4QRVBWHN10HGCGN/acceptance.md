@@ -1,0 +1,9 @@
+- [x] An editor signs in with email and password; public sign-up is closed and no email is sent
+- [x] Editors are created, listed, re-passworded and removed with a terminal script that also works inside the production container
+- [x] Signed-in editors search fpa-api's players and edit a profile through a form generated from the field registry; nobody can create players
+- [x] Profiles are stored per canonical player id in Postgres and validated against the registry on every save
+- [x] GET /export serves the exported fields in the agreed format without authentication
+- [x] Saving asks fpa-api to refresh when a refresh token is configured
+- [x] Demo routes and the placeholder table are gone; the app builds with adapter-node and a Dockerfile that runs migrations on start
+- [x] Unit tests cover the field registry and the export
+- [x] Knowledge entries describe the field registry, the export, editor accounts and deployment

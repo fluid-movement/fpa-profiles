@@ -17,21 +17,20 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"auth:schema": "auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes"
+		"auth:schema": "auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes",
+		"migrate": "node --env-file-if-exists=.env scripts/migrate.ts",
+		"users": "node --env-file-if-exists=.env scripts/users.ts",
+		"start": "node scripts/migrate.ts && node build"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^8.0.0",
 		"@sveltejs/kit": "^3.0.0",
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^24",
 		"@vitest/browser-playwright": "^4.1.8",
 		"auth": "^1.6.24",
-		"better-auth": "^1.6.24",
 		"drizzle-kit": "^0.31.10",
-		"drizzle-orm": "^0.45.2",
 		"playwright": "^1.60.0",
-		"postgres": "^3.4.9",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",
@@ -43,5 +42,13 @@
 	"imports": {
 		"#lib": "./src/lib/index.js",
 		"#lib/*": "./src/lib/*"
-	}
+	},
+	"dependencies": {
+		"@sveltejs/adapter-node": "^6.0.0",
+		"better-auth": "^1.7.7",
+		"drizzle-orm": "^0.45.4",
+		"postgres": "^3.4.9",
+		"valibot": "^1.5.0"
+	},
+	"packageManager": "pnpm@12.11.2"
 }
