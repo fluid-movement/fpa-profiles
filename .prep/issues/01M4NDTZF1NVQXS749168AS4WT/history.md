@@ -1,0 +1,1 @@
+- 2026-10-11T12:08:41Z claude-code/opus-5.5: Reproduced with headless Chrome (B showed A's nickname, headline and the Saved notice); after the fix the same script passes and the full editor flow passes. Test account removed and profiles restored afterwards.

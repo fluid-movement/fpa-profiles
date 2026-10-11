@@ -1,0 +1,1 @@
+Cause: `src/routes/players/[playerId]/+page.svelte` used one `saveProfile` form instance for every player. Kit keeps an instance's last submitted values and result, and a field with a value ignores its seed. Fix: `saveProfile.for(editor.player.id)`, plus resetting the extra link rows per player ([SvelteKit conventions](/conventions/sveltekit.md)).

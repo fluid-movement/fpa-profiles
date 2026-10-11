@@ -1,0 +1,2 @@
+- [x] After saving player A and navigating client-side to player B, B's form shows B's data and no Saved notice
+- [x] Saving still works and the full editor flow passes

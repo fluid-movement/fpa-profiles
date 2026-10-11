@@ -11,17 +11,27 @@
 
 	const editor = $derived(await getEditor(page.params.playerId!));
 
+	// One form instance per player. A single shared instance keeps the last
+	// submitted values and result, which then override the seeds on the next
+	// player's page: navigating after a save showed the previous player's data.
+	const form = $derived(saveProfile.for(editor.player.id));
+
 	// The registry decides the fields, so they are addressed by key at runtime.
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const fields = saveProfile.fields as unknown as Record<string, any>;
+	const fields = $derived(form.fields as unknown as Record<string, any>);
 
 	const storedLinks = $derived((editor.fields.links as Link[] | undefined) ?? []);
-	// One spare row to type into; "Add link" opens more.
+	// One spare row to type into; "Add link" opens more. Reset per player, since
+	// the page component is reused when navigating between players.
 	let extraRows = $state(1);
+	$effect.pre(() => {
+		void editor.player.id;
+		extraRows = 1;
+	});
 	const linkRows = $derived(storedLinks.length + extraRows);
 
-	const saved = $derived(saveProfile.result?.saved === true);
-	const formIssues = $derived((saveProfile.fields.allIssues() ?? []).filter((issue) => issue.path.length === 0));
+	const saved = $derived(form.result?.saved === true);
+	const formIssues = $derived((form.fields.allIssues() ?? []).filter((issue) => issue.path.length === 0));
 
 	function text(key: string): string {
 		const value = editor.fields[key];
@@ -53,7 +63,7 @@
 
 <Card.Root>
 	<Card.Content>
-		<form {...saveProfile}>
+		<form {...form}>
 			<input {...fields.playerId.as('hidden', editor.player.id)} />
 
 			<Field.Group>
@@ -105,8 +115,8 @@
 				<Field.Error errors={formIssues} />
 
 				<Field.Field orientation="horizontal">
-					<Button type="submit" disabled={saveProfile.pending > 0}>
-						{saveProfile.pending > 0 ? 'Saving…' : 'Save profile'}
+					<Button type="submit" disabled={form.pending > 0}>
+						{form.pending > 0 ? 'Saving…' : 'Save profile'}
 					</Button>
 					{#if saved}<span class="text-sm text-muted-foreground">Saved.</span>{/if}
 				</Field.Field>
