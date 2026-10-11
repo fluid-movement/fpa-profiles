@@ -1,0 +1,1 @@
+- [x] Fields, types, keying, privacy and the export format are decided and agreed with the user

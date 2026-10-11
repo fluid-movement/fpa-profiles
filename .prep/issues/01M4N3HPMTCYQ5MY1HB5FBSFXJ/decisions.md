@@ -67,3 +67,27 @@ date: 2026-10-11
 ```
 
 Only fields marked exported appear, and empty values are omitted. fpa-api validates `fields` generically: a record from key to one of the five value shapes, not a fixed key list. So a new field flows through to the public API without an fpa-api release, and what is public stays a single decision, made in the registry. `version` changes only for breaking changes to this envelope.
+
+## D5: Version 1 fields (final)
+date: 2026-10-11
+supersedes: D3
+outcome: true
+
+Agreed with the user on 2026-10-11. As D3, except that `mentors` and `partners` are `longtext`, so the legacy text migrates unchanged; turning them into name lists is a low-priority follow-up. With D2 (registry, storage) and D4 (export format) this is the decision.
+
+| Key | Type | Legacy source |
+| --- | --- | --- |
+| `nickname` | text | `nickname` |
+| `headline` | text | `short_headline`, else `headline` |
+| `bio` | markdown | `description` (HTML converted) |
+| `playingSince` | text | `start_play_date` |
+| `howStarted` | longtext | `how_started` |
+| `careerHighlights` | longtext | `career_highlights` |
+| `favoriteMove` | longtext | `fav_move` |
+| `mentors` | longtext | `mentors` |
+| `partners` | longtext | `partners` |
+| `hobbies` | longtext | `other_fun` |
+| `media` | longtext | `media` and `appearances`, joined |
+| `links` | links | `user_url` → website, `sponsors` + `sponsor_link` → sponsor |
+
+The `names` value type stays defined for the follow-up but no v1 field uses it.
