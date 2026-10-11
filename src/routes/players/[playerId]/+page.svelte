@@ -1,5 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import * as Card from '#lib/components/ui/card/index.ts';
+	import * as Field from '#lib/components/ui/field/index.ts';
+	import * as NativeSelect from '#lib/components/ui/native-select/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import { FIELDS, LINK_KINDS, type Link } from '#lib/profile/fields.ts';
 	import { getEditor, saveProfile } from './data.remote.ts';
 
@@ -15,100 +21,96 @@
 	const linkRows = $derived(storedLinks.length + extraRows);
 
 	const saved = $derived(saveProfile.result?.saved === true);
-
-	const control =
-		'mt-1 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 shadow-sm focus:border-stone-500 focus:ring-2 focus:ring-stone-300 focus:outline-none aria-invalid:border-red-500';
+	const formIssues = $derived((saveProfile.fields.allIssues() ?? []).filter((issue) => issue.path.length === 0));
 
 	function text(key: string): string {
 		const value = editor.fields[key];
 		return typeof value === 'string' ? value : '';
 	}
+
+	/** Kit's field attributes without `type`, for elements that have none. */
+	function untyped(key: string) {
+		const { type: _type, ...attributes } = fields[key].as('text', text(key));
+		return attributes;
+	}
 </script>
 
-<a href="/" class="text-sm text-stone-500 hover:text-stone-900">← All players</a>
+<Button href="/" variant="link" class="mb-2 h-auto px-0 text-muted-foreground">← All players</Button>
 
-<h1 class="mt-2 text-2xl font-semibold">
-	{editor.player.fullName}
-	{#if editor.player.country}<span class="text-lg font-normal text-stone-500">{editor.player.country}</span>{/if}
-</h1>
-<p class="mt-1 mb-8 text-sm text-stone-500">
-	{#if editor.updatedAt}
-		Last saved {new Date(editor.updatedAt).toLocaleString()} by {editor.updatedBy}
-	{:else}
-		No profile yet.
-	{/if}
-</p>
-
-<form {...saveProfile} class="space-y-6">
-	<input {...fields.playerId.as('hidden', editor.player.id)} />
-
-	{#each FIELDS as field (field.key)}
-		{#if field.type === 'links'}
-			<fieldset>
-				<legend class="text-sm font-medium">{field.label}</legend>
-				{#if field.help}<p class="text-sm text-stone-500">{field.help}</p>{/if}
-
-				<div class="mt-2 space-y-2">
-					{#each { length: linkRows }, i (i)}
-						{@const row = fields.links[i]}
-						{@const stored = storedLinks[i]}
-						<div class="grid grid-cols-[8rem_1fr_1fr] gap-2">
-							<select {...row.kind.as('select', stored?.kind ?? 'website')} aria-label="Link type" class={control}>
-								{#each LINK_KINDS as kind (kind)}
-									<option value={kind}>{kind}</option>
-								{/each}
-							</select>
-							<input {...row.url.as('url', stored?.url ?? '')} placeholder="https://…" aria-label="URL" class={control} />
-							<input {...row.label.as('text', stored?.label ?? '')} placeholder="Label (optional)" aria-label="Label" class={control} />
-						</div>
-					{/each}
-				</div>
-				<button
-					type="button"
-					onclick={() => (extraRows += 1)}
-					class="mt-2 text-sm text-stone-600 underline hover:text-stone-900"
-				>
-					Add link
-				</button>
-				<p class="mt-1 text-sm text-stone-500">Clear a row's URL and label to remove it.</p>
-				{#each fields.links.allIssues() ?? [] as issue (issue.message)}
-					<p class="mt-1 text-sm text-red-600">{issue.message}</p>
-				{/each}
-			</fieldset>
+<div class="mb-6 space-y-1">
+	<h1 class="text-2xl font-semibold tracking-tight">
+		{editor.player.fullName}
+		{#if editor.player.country}<span class="text-lg font-normal text-muted-foreground">{editor.player.country}</span>{/if}
+	</h1>
+	<p class="text-sm text-muted-foreground">
+		{#if editor.updatedAt}
+			Last saved {new Date(editor.updatedAt).toLocaleString()} by {editor.updatedBy}
 		{:else}
-			<label class="block text-sm font-medium">
-				{field.label}
-				{#if field.help}<span class="block font-normal text-stone-500">{field.help}</span>{/if}
-				{#if field.type === 'text'}
-					<input {...fields[field.key].as('text', text(field.key))} class={control} />
-				{:else}
-					{@const { type: _type, ...attributes } = fields[field.key].as('text', text(field.key))}
-					<textarea
-						{...attributes}
-						rows={field.type === 'markdown' ? 12 : 4}
-						class="{control} {field.type === 'markdown' ? 'font-mono text-sm' : ''}"
-					></textarea>
-				{/if}
-				{#each fields[field.key].issues() ?? [] as issue (issue.message)}
-					<span class="mt-1 block font-normal text-red-600">{issue.message}</span>
+			No profile yet.
+		{/if}
+	</p>
+</div>
+
+<Card.Root>
+	<Card.Content>
+		<form {...saveProfile}>
+			<input {...fields.playerId.as('hidden', editor.player.id)} />
+
+			<Field.Group>
+				{#each FIELDS as field (field.key)}
+					{#if field.type === 'links'}
+						<Field.Set>
+							<Field.Legend>{field.label}</Field.Legend>
+							{#if field.help}<Field.Description>{field.help}</Field.Description>{/if}
+
+							{#each { length: linkRows }, i (i)}
+								{@const row = fields.links[i]}
+								{@const stored = storedLinks[i]}
+								<div class="grid grid-cols-[8rem_1fr_1fr] gap-2">
+									<NativeSelect.Root {...row.kind.as('select', stored?.kind ?? 'website')} aria-label="Link type">
+										{#each LINK_KINDS as kind (kind)}
+											<NativeSelect.Option value={kind}>{kind}</NativeSelect.Option>
+										{/each}
+									</NativeSelect.Root>
+									<Input {...row.url.as('url', stored?.url ?? '')} placeholder="https://…" aria-label="URL" />
+									<Input {...row.label.as('text', stored?.label ?? '')} placeholder="Label (optional)" aria-label="Label" />
+								</div>
+							{/each}
+
+							<div>
+								<Button type="button" variant="outline" size="sm" onclick={() => (extraRows += 1)}>Add link</Button>
+							</div>
+							<Field.Description>Clear a row's URL and label to remove it.</Field.Description>
+							<Field.Error errors={fields.links.allIssues()} />
+						</Field.Set>
+					{:else}
+						<Field.Field>
+							<Field.Label for={field.key}>{field.label}</Field.Label>
+							{#if field.type === 'text'}
+								<Input id={field.key} {...fields[field.key].as('text', text(field.key))} />
+							{:else}
+								<Textarea
+									id={field.key}
+									{...untyped(field.key)}
+									rows={field.type === 'markdown' ? 12 : 4}
+									class={field.type === 'markdown' ? 'font-mono' : ''}
+								/>
+							{/if}
+							{#if field.help}<Field.Description>{field.help}</Field.Description>{/if}
+							<Field.Error errors={fields[field.key].issues()} />
+						</Field.Field>
+					{/if}
 				{/each}
-			</label>
-		{/if}
-	{/each}
 
-	{#each saveProfile.fields.allIssues() ?? [] as issue (issue.message)}
-		{#if issue.path.length === 0}
-			<p class="text-sm text-red-600">{issue.message}</p>
-		{/if}
-	{/each}
+				<Field.Error errors={formIssues} />
 
-	<div class="flex items-center gap-4 border-t border-stone-200 pt-6">
-		<button
-			disabled={saveProfile.pending > 0}
-			class="rounded-md bg-stone-900 px-4 py-2 font-medium text-white hover:bg-stone-700 disabled:opacity-60"
-		>
-			{saveProfile.pending > 0 ? 'Saving…' : 'Save profile'}
-		</button>
-		{#if saved}<span class="text-sm text-emerald-700">Saved.</span>{/if}
-	</div>
-</form>
+				<Field.Field orientation="horizontal">
+					<Button type="submit" disabled={saveProfile.pending > 0}>
+						{saveProfile.pending > 0 ? 'Saving…' : 'Save profile'}
+					</Button>
+					{#if saved}<span class="text-sm text-muted-foreground">Saved.</span>{/if}
+				</Field.Field>
+			</Field.Group>
+		</form>
+	</Card.Content>
+</Card.Root>
