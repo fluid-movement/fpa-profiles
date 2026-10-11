@@ -1,0 +1,3 @@
+- [x] Off-white page background with slightly lighter surfaces; no pure white page
+- [x] Primary is a light pastel blue with readable dark text on it (WCAG AA for text)
+- [x] Light only; no dark mode or theme switch

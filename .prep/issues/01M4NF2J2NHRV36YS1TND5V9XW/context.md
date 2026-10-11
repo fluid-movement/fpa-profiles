@@ -1,0 +1,1 @@
+Only the shadcn theme variables in `src/routes/layout.css` change, plus the page and header backgrounds in `src/routes/+layout.svelte`; components keep their stock styles ([SvelteKit conventions](/conventions/sveltekit.md)).

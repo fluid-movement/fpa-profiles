@@ -13,8 +13,8 @@
 	<title>FPA Profiles</title>
 </svelte:head>
 
-<div class="min-h-screen bg-muted/40">
-	<header class="border-b bg-background">
+<div class="min-h-screen bg-background">
+	<header class="border-b bg-card">
 		<div class="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3">
 			<a href="/" class="font-semibold tracking-tight">FPA Profiles</a>
 			{#if data.user}

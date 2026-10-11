@@ -14,6 +14,10 @@
 	const withProfile = $derived(page.url.searchParams.get('profiles') === '1');
 	const results = $derived(await findPlayers({ q, withProfile }));
 
+	// Writable derived: the switch flips the moment it is clicked, and the URL
+	// takes back over once the navigation lands (and on history back).
+	let profilesOnly = $derived(withProfile);
+
 	// The input's own text, so typing is never interrupted by a URL round trip.
 	// Seeded from the URL, which is what history navigation restores.
 	let typed = $state(page.url.searchParams.get('q') ?? '');
@@ -58,7 +62,7 @@
 	<div class="flex shrink-0 items-center gap-2">
 		<Switch
 			id="with-profile"
-			checked={withProfile}
+			bind:checked={profilesOnly}
 			onCheckedChange={(checked) => applyFilters({ q: typed, withProfile: checked })}
 		/>
 		<Label for="with-profile">Only with profile</Label>
