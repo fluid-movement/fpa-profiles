@@ -1,0 +1,4 @@
+- [x] Only saved links render; no empty row by default
+- [x] Add link adds a row; each row has a lucide delete button that removes it
+- [x] Saving after deleting a middle row stores the remaining links in order
+- [x] Empty link rows are never saved

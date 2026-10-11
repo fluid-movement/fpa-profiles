@@ -1,4 +1,4 @@
-import { eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.ts';
 import { profile } from '#lib/server/db/schema.ts';
 import type { ProfileFields } from '#lib/profile/fields.ts';
@@ -11,13 +11,9 @@ export async function getProfile(playerId: string): Promise<Profile | null> {
 	return row ?? null;
 }
 
-/** Which of these players already have a profile, for marking search results. */
-export async function profiledPlayerIds(playerIds: string[]): Promise<Set<string>> {
-	if (playerIds.length === 0) return new Set();
-	const rows = await db
-		.select({ playerId: profile.playerId })
-		.from(profile)
-		.where(inArray(profile.playerId, playerIds));
+/** Every player that has a profile. A few hundred ids, read per search. */
+export async function profiledPlayerIds(): Promise<Set<string>> {
+	const rows = await db.select({ playerId: profile.playerId }).from(profile);
 	return new Set(rows.map((row) => row.playerId));
 }
 

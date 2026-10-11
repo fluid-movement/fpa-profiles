@@ -1,0 +1,2 @@
+- [x] A toggle shows only players with a profile, applied immediately
+- [x] It combines with the name filter and survives history back

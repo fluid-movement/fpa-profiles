@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { page } from '$app/state';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import * as Card from '#lib/components/ui/card/index.ts';
 	import * as Field from '#lib/components/ui/field/index.ts';
 	import * as NativeSelect from '#lib/components/ui/native-select/index.ts';
@@ -21,14 +23,37 @@
 	const fields = $derived(form.fields as unknown as Record<string, any>);
 
 	const storedLinks = $derived((editor.fields.links as Link[] | undefined) ?? []);
-	// One spare row to type into; "Add link" opens more. Reset per player, since
-	// the page component is reused when navigating between players.
-	let extraRows = $state(1);
+
+	/**
+	 * The link rows on screen: the saved links, plus any added with "Add link".
+	 * Each row keeps the form index it was created with, and indexes are never
+	 * reused, so deleting a row leaves a gap in the submitted `links[i]` (which
+	 * the save ignores) instead of shifting other rows' values onto new names.
+	 */
+	type LinkRow = { index: number; seed?: Link };
+	const savedRows = (links: Link[]): LinkRow[] => links.map((seed, index) => ({ index, seed }));
+
+	let rows = $state<LinkRow[]>(savedRows(untrack(() => storedLinks)));
+	let nextIndex = $state(untrack(() => storedLinks.length));
+
+	// The page component is reused when navigating between players: start over
+	// from the new player's saved links.
 	$effect.pre(() => {
 		void editor.player.id;
-		extraRows = 1;
+		untrack(() => {
+			rows = savedRows(storedLinks);
+			nextIndex = storedLinks.length;
+		});
 	});
-	const linkRows = $derived(storedLinks.length + extraRows);
+
+	function addLink() {
+		rows.push({ index: nextIndex });
+		nextIndex += 1;
+	}
+
+	function removeLink(index: number) {
+		rows = rows.filter((row) => row.index !== index);
+	}
 
 	const saved = $derived(form.result?.saved === true);
 	const formIssues = $derived((form.fields.allIssues() ?? []).filter((issue) => issue.path.length === 0));
@@ -73,24 +98,31 @@
 							<Field.Legend>{field.label}</Field.Legend>
 							{#if field.help}<Field.Description>{field.help}</Field.Description>{/if}
 
-							{#each { length: linkRows }, i (i)}
-								{@const row = fields.links[i]}
-								{@const stored = storedLinks[i]}
-								<div class="grid grid-cols-[8rem_1fr_1fr] gap-2">
-									<NativeSelect.Root {...row.kind.as('select', stored?.kind ?? 'website')} aria-label="Link type">
+							{#each rows as { index, seed } (index)}
+								{@const row = fields.links[index]}
+								<div class="grid grid-cols-[8rem_1fr_1fr_auto] gap-2">
+									<NativeSelect.Root {...row.kind.as('select', seed?.kind ?? 'website')} aria-label="Link type">
 										{#each LINK_KINDS as kind (kind)}
 											<NativeSelect.Option value={kind}>{kind}</NativeSelect.Option>
 										{/each}
 									</NativeSelect.Root>
-									<Input {...row.url.as('url', stored?.url ?? '')} placeholder="https://…" aria-label="URL" />
-									<Input {...row.label.as('text', stored?.label ?? '')} placeholder="Label (optional)" aria-label="Label" />
+									<Input {...row.url.as('url', seed?.url ?? '')} placeholder="https://…" aria-label="URL" required />
+									<Input {...row.label.as('text', seed?.label ?? '')} placeholder="Label (optional)" aria-label="Label" />
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										aria-label="Remove link"
+										onclick={() => removeLink(index)}
+									>
+										<Trash2 />
+									</Button>
 								</div>
 							{/each}
 
 							<div>
-								<Button type="button" variant="outline" size="sm" onclick={() => (extraRows += 1)}>Add link</Button>
+								<Button type="button" variant="outline" size="sm" onclick={addLink}>Add link</Button>
 							</div>
-							<Field.Description>Clear a row's URL and label to remove it.</Field.Description>
 							<Field.Error errors={fields.links.allIssues()} />
 						</Field.Set>
 					{:else}

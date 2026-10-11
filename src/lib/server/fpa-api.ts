@@ -33,10 +33,33 @@ async function get<T>(path: string): Promise<T | null> {
 	return (await response.json()) as T;
 }
 
-export async function searchPlayers(q: string, limit = 50): Promise<Page<ApiPlayer>> {
-	const params = new URLSearchParams({ limit: String(limit) });
-	if (q) params.set('q', q);
-	return (await get<Page<ApiPlayer>>(`/players?${params}`)) ?? { items: [], total: 0 };
+/** fpa-api's largest page size. */
+const PAGE_SIZE = 500;
+const DIRECTORY_TTL_MS = 5 * 60 * 1000;
+
+let directory: { players: ApiPlayer[]; fetchedAt: number } | null = null;
+let loading: Promise<ApiPlayer[]> | null = null;
+
+/**
+ * Every canonical player, cached for five minutes. The search page filters
+ * this in memory, so typing does not hit fpa-api per keystroke. About 2,600
+ * players in 2026, a handful of pages.
+ */
+export async function allPlayers(): Promise<ApiPlayer[]> {
+	if (directory && Date.now() - directory.fetchedAt < DIRECTORY_TTL_MS) return directory.players;
+	loading ??= loadDirectory().finally(() => (loading = null));
+	return loading;
+}
+
+async function loadDirectory(): Promise<ApiPlayer[]> {
+	const players: ApiPlayer[] = [];
+	for (let offset = 0; ; offset += PAGE_SIZE) {
+		const page = await get<Page<ApiPlayer>>(`/players?limit=${PAGE_SIZE}&offset=${offset}`);
+		players.push(...(page?.items ?? []));
+		if (!page || players.length >= page.total || page.items.length === 0) break;
+	}
+	directory = { players, fetchedAt: Date.now() };
+	return players;
 }
 
 /** Looks a player up by any of their ids; the result carries the canonical one. */

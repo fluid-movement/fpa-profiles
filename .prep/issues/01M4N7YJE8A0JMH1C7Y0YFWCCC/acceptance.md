@@ -1,0 +1,3 @@
+- [x] The list filters while typing; there is no search button
+- [x] The filter lives in the URL; opening a profile and going back shows the same filtered list
+- [x] Typing does not call fpa-api per keystroke

@@ -1,0 +1,1 @@
+A shadcn `Switch` on the search page sets `?profiles=1`; `findPlayers` then keeps only players with a row in `profile` (the editor's own database is the source of truth, not fpa-api's copy). It combines with the name filter and survives history navigation the same way.

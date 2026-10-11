@@ -34,7 +34,8 @@ const ProfileForm = v.object({
 		FIELDS.map((field) => [
 			field.key,
 			field.type === 'links'
-				? v.optional(v.array(v.object({ kind: optionalText, url: optionalText, label: optionalText })))
+				? // Deleted rows leave empty slots: indexes are never reused.
+					v.optional(v.array(v.optional(v.object({ kind: optionalText, url: optionalText, label: optionalText }))))
 				: optionalText
 		])
 	)
