@@ -13,13 +13,13 @@ scope:
   - src/env.ts
   - vite.config.ts
   - drizzle/**
-confirmed_commit: 1a56aa7691effa6ac06ce28e6cc02d7b9f704441
+confirmed_commit: 999d10512a57f6541f9cbde13c7e6e5a02d55b88
 ---
 
 Production runs on Coolify from the `Dockerfile` (build pack Dockerfile, port 3000, health check `/healthz`), with its own Postgres resource ([why](/decisions/separate-editor-app.md)).
 
 - **Build stage** (`node:24-alpine`): corepack enables the pnpm version pinned in `package.json` `packageManager`, `pnpm install --frozen-lockfile`, `pnpm build` (adapter-node into `build/`), `pnpm prune --prod`. Kit 3 validates required environment variables during the build, so the Dockerfile passes placeholders; none is `static`, so nothing is baked in.
-- **Runtime stage**: copies `node_modules`, `build`, `drizzle/`, `scripts/` and the source modules the scripts import (`src/lib/server/db/auth.schema.ts` and `schema.ts`, `src/lib/usernames.ts`, `src/lib/profile/`, `src/lib/legacy/`), runs as `node`, and starts with `node scripts/migrate.ts && node build`, so migrations apply before the new code serves. `.dockerignore` excludes only root-level `/*.sql` (local dumps); a broader `*.sql` would drop `drizzle/*.sql` and break migrating a fresh database.
+- **Runtime stage**: copies `node_modules`, `build`, `drizzle/`, `scripts/` and the source modules `scripts/users.ts` imports (`src/lib/server/db/auth.schema.ts`, `src/lib/usernames.ts`), runs as `node`, and starts with `node scripts/migrate.ts && node build`, so migrations apply before the new code serves. The image has no pnpm: run scripts as `node scripts/<name>.ts` inside the container. `.dockerignore` excludes only root-level `/*.sql` (local dumps); a broader `*.sql` would drop `drizzle/*.sql` and break migrating a fresh database.
 - Runtime dependencies (`better-auth`, `drizzle-orm`, `postgres`, `valibot`, `@sveltejs/adapter-node`) are in `dependencies` so they survive the prune; the scripts import them directly.
 
 ## Migrations
@@ -29,3 +29,7 @@ Edit `src/lib/server/db/schema.ts`, run `pnpm db:generate`, commit the new file 
 ## Environment (`src/env.ts`)
 
 `DATABASE_URL`, `ORIGIN`, `BETTER_AUTH_SECRET` are required. `FPA_API_URL` defaults to `http://localhost:3000`; `FPA_API_REFRESH_TOKEN` is optional ([export](/features/profile-export.md)). Kit 3 reads them through `$app/env/private`; the plain-Node scripts read `process.env` (locally via `--env-file-if-exists=.env`).
+
+## Production database access
+
+The Postgres resource is never reachable from the internet. Its Coolify port mapping `127.0.0.1:5500:5432` publishes it on the server's loopback only, and the Hetzner firewall blocks the port as well. Clients connect through an SSH tunnel to the server (TablePlus: Over SSH, database host `127.0.0.1`, port `5500`; credentials from the resource's internal Postgres URL). Coolify's "public access" setting is not used: it would bind all interfaces, and Docker-published ports bypass `ufw`.

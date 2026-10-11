@@ -11,7 +11,7 @@ scope:
   - src/lib/**/*.remote.ts
   - components.json
   - src/routes/layout.css
-confirmed_commit: 9f6293aa5755d50e123cfe64075775bcf7322380
+confirmed_commit: 999d10512a57f6541f9cbde13c7e6e5a02d55b88
 ---
 
 This app follows fpa-events' conventions (see its `AGENTS.md`):
@@ -21,6 +21,7 @@ This app follows fpa-events' conventions (see its `AGENTS.md`):
 - **Remote functions for server interactions.** `query()` and `form()` from `$app/server` in a `data.remote.ts` next to the route (or `src/lib/*.remote.ts` when shared, like `auth.remote.ts`). No `+page.server.ts` actions and no `use:enhance`; spreading the form onto `<form>` gives progressive enhancement, and the forms work without JavaScript. Remote functions are enabled with `experimental.remoteFunctions` in `vite.config.ts`, where Kit 3 takes its options (it refuses a `svelte.config.js`).
 - **Every input comes from `form.fields.<name>.as(type, seed)`.** Kit rejects fields it did not build. The seed only initialises the value. There is no `textarea` type: spread `.as('text', seed)` without its `type` onto a `<textarea>`. Fields addressed by registry key are reached through `form.fields as Record<string, any>` (see the profile editor).
 - **One form instance per record: `form.for(key)`.** A remote form instance keeps its last submitted values and `result`, and a field with a value ignores its `.as()` seed. On a route reused across records (`/players/[playerId]`), a shared instance therefore shows the previously saved record's data after navigating. The profile editor uses `saveProfile.for(editor.player.id)` and resets per-record local `$state` when the id changes ([editor pages](/features/editor-pages.md)).
+- **Let a successful form refresh every query.** When a `form()` handler refreshes a query itself (`someQuery(arg).refresh()`), the client refreshes only that one; otherwise it refreshes every cached query. Cached queries outlive the page that used them, so a targeted refresh leaves other pages stale (the player list after a profile save). Refresh explicitly only when the full refresh is measurably too expensive.
 - **Kit 3 `goto` options** are `replace` and `reset` (not `replaceState`/`keepFocus`/`noScroll`); `page.url.searchParams` is read-only, so copy `new URLSearchParams(page.url.search)` before editing.
 - **Svelte 5 runes and async components** (`compilerOptions.experimental.async`): read queries with `$derived(await someQuery(arg))`.
 - **Validation with valibot.** Remote form schemas check shape; domain rules live in plain modules (`normalizeFields`). Report domain errors with `invalid(issue.<field>(message))`, or `invalid(message)` for the whole form.

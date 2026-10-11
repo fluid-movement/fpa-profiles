@@ -57,7 +57,9 @@ export const saveProfile = form(ProfileForm, async (data, issue) => {
 
 	// Usernames are required for editors; the id is a fallback for safety.
 	await storeProfile(player.id, fields, editor.username ?? editor.id);
-	await getEditor(data.playerId).refresh();
+	// No explicit query refresh: without one, the client refreshes every cached
+	// query after a successful save, including the player list's, whose badges
+	// and profile filter would otherwise stay stale until a reload.
 	void requestRefresh();
 
 	return { saved: true };

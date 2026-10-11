@@ -11,7 +11,7 @@ scope:
   - src/routes/data.remote.ts
   - src/routes/players/**
   - src/lib/server/fpa-api.ts
-confirmed_commit: 9f6293aa5755d50e123cfe64075775bcf7322380
+confirmed_commit: 999d10512a57f6541f9cbde13c7e6e5a02d55b88
 ---
 
 ## Player list (`/`)
@@ -25,4 +25,5 @@ confirmed_commit: 9f6293aa5755d50e123cfe64075775bcf7322380
 - `getEditor(playerId)` loads the player from fpa-api (any id resolves to the canonical one) and the stored profile; the form is generated from the [field registry](/components/profile-fields.md).
 - **One form instance per player**: `saveProfile.for(editor.player.id)`. A shared instance carried the previous player's submitted values and "Saved." onto the next player's page.
 - **Links**: only saved links render. "Add link" appends a row; a lucide `Trash2` button removes one. Each row keeps the form index it was created with (`links[i]`) and indexes are never reused, so deleting a row leaves an empty slot in the submission instead of shifting other rows' values. The form schema accepts empty slots and `normalizeFields` drops them, together with any row left blank, so empty links are never stored. Rows reset when the player changes, because the page component is reused across players.
-- Saving re-validates with `normalizeFields`, stores the profile under the canonical id with the editor's username, refreshes `getEditor`, and asks fpa-api to refresh ([export](/features/profile-export.md)).
+- Saving re-validates with `normalizeFields`, stores the profile under the canonical id with the editor's username (a profile left with no fields is deleted instead), and asks fpa-api to refresh ([export](/features/profile-export.md)).
+- **No explicit query refresh on save**, so the client refreshes every cached query afterwards, including the list's `findPlayers` entries. Those survive navigation until garbage collection evicts them; refreshing only `getEditor` left stale badges and a stale profile filter on the list until a reload. The cost is one cheap re-filter per cached list, never an fpa-api read.

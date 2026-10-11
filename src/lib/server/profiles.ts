@@ -17,8 +17,17 @@ export async function profiledPlayerIds(): Promise<Set<string>> {
 	return new Set(rows.map((row) => row.playerId));
 }
 
-/** `fields` must already be normalized against the field registry. */
+/**
+ * `fields` must already be normalized against the field registry, which drops
+ * empty values. A profile left with no fields is deleted, not stored empty:
+ * the player then has no profile, as before one was created.
+ */
 export async function saveProfile(playerId: string, fields: ProfileFields, updatedBy: string): Promise<void> {
+	if (Object.keys(fields).length === 0) {
+		await db.delete(profile).where(eq(profile.playerId, playerId));
+		return;
+	}
+
 	const now = new Date();
 	await db
 		.insert(profile)

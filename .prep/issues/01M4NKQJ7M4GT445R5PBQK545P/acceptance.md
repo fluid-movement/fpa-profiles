@@ -1,0 +1,4 @@
+- [x] The import script, src/lib/legacy and the import:legacy package script are gone
+- [x] The Dockerfile copies only the source modules scripts/users.ts imports
+- [x] No documentation or knowledge entry describes the import as runnable
+- [x] pnpm check and pnpm test pass

@@ -1,0 +1,3 @@
+- [x] Saving a profile with every field empty deletes its row; the list no longer shows the badge and the editor shows no last-saved line
+- [x] Saving an empty form for a player without a profile writes no row
+- [x] Saving a profile with at least one value still upserts it as before

@@ -10,12 +10,12 @@ scope:
   - src/lib/profile/fields.ts
   - src/lib/server/db/schema.ts
   - src/lib/server/profiles.ts
-confirmed_commit: 1a56aa7691effa6ac06ce28e6cc02d7b9f704441
+confirmed_commit: 999d10512a57f6541f9cbde13c7e6e5a02d55b88
 ---
 
 ## Registry
 
-`FIELDS` in `src/lib/profile/fields.ts` is the only definition of the profile fields: `key`, `label`, optional `help`, a value `type`, and `exported` (whether the field is public). The edit form (`src/routes/players/[playerId]/+page.svelte`), the save handler, the legacy import and the [export](/features/profile-export.md) all iterate it, so **adding a field is one entry**: no migration, no form or export change.
+`FIELDS` in `src/lib/profile/fields.ts` is the only definition of the profile fields: `key`, `label`, optional `help`, a value `type`, and `exported` (whether the field is public). The edit form (`src/routes/players/[playerId]/+page.svelte`), the save handler and the [export](/features/profile-export.md) all iterate it, so **adding a field is one entry**: no migration, no form or export change.
 
 Value types, each with one schema in `VALUE_SCHEMAS`:
 
@@ -35,6 +35,6 @@ Personal fields (height, birthplace, residence, profession) are deliberately abs
 
 ## Storage
 
-Table `profile` (`src/lib/server/db/schema.ts`): `player_id` (text primary key, the canonical fpa-api player id at write time), `legacy_id` (the old WordPress `wp_players.player_id`, indexed, never exported), `fields` (`jsonb`, typed as `ProfileFields`), `created_at`, `updated_at`, `updated_by` (editor username, or `import`). Accessors live in `src/lib/server/profiles.ts` (`getProfile`, `profiledPlayerIds`, `saveProfile` as an upsert, `buildExport`).
+Table `profile` (`src/lib/server/db/schema.ts`): `player_id` (text primary key, the canonical fpa-api player id at write time), `legacy_id` (the old WordPress `wp_players.player_id` on profiles from the [legacy import](/features/legacy-import.md), indexed, never exported), `fields` (`jsonb`, typed as `ProfileFields`), `created_at`, `updated_at`, `updated_by` (editor username, or `import` until an editor saves an imported profile). Accessors live in `src/lib/server/profiles.ts` (`getProfile`, `profiledPlayerIds`, `saveProfile`, an upsert that deletes the row instead when no fields remain, so an emptied profile counts as no profile everywhere, `buildExport`).
 
 Players themselves are never stored here; they come from fpa-api (`src/lib/server/fpa-api.ts`). See [Separate editor app on Postgres](/decisions/separate-editor-app.md).

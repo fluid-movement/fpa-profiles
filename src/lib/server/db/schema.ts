@@ -12,12 +12,15 @@ export const profile = pgTable(
 	'profile',
 	{
 		playerId: text('player_id').primaryKey(),
-		/** `wp_players.player_id` on the legacy WordPress site, for traceability. Not exported. */
+		/**
+		 * `wp_players.player_id` on the legacy WordPress site, set on profiles that
+		 * the one-off 2026 import created. Kept for traceability; not exported.
+		 */
 		legacyId: integer('legacy_id'),
 		fields: jsonb('fields').$type<ProfileFields>().notNull().default({}),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-		/** Username of the editor who last saved, or `import` for the legacy import. */
+		/** Username of the editor who last saved, or `import` on profiles nobody has saved since the legacy import. */
 		updatedBy: text('updated_by').notNull()
 	},
 	(table) => [index('profile_legacy_id_idx').on(table.legacyId)]

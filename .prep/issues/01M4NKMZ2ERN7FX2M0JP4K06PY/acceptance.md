@@ -1,0 +1,2 @@
+- [x] After saving a profile and going back to the list, the badge and the with-profile filter reflect the save without a reload
+- [x] The editor page still shows the saved values and the new last-saved line after a save
