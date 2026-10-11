@@ -1,0 +1,3 @@
+- [ ] The map is written as findings and the user reviewed it
+- [ ] /overview.md exists as a draft
+- [ ] Each area of the map has a child issue under the bootstrap parent
