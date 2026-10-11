@@ -13,7 +13,7 @@ scope:
   - src/lib/auth.remote.ts
   - scripts/users.ts
   - src/lib/usernames.ts
-confirmed_commit: 90502a62fa64a0ed0e8a44264c755990840fcf12
+confirmed_commit: 1a56aa7691effa6ac06ce28e6cc02d7b9f704441
 ---
 
 ## Sign-in
