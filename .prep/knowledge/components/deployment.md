@@ -13,13 +13,13 @@ scope:
   - src/env.ts
   - vite.config.ts
   - drizzle/**
-confirmed_commit: 3509929d3f9f2b24b113b87b0b5e98dc273a7eba
+confirmed_commit: 525b9d39e7654da733028ac30e90dc60c6808d84
 ---
 
 Production runs on Coolify from the `Dockerfile` (build pack Dockerfile, port 3000, health check `/healthz`), with its own Postgres resource ([why](/decisions/separate-editor-app.md)).
 
 - **Build stage** (`node:24-alpine`): corepack enables the pnpm version pinned in `package.json` `packageManager`, `pnpm install --frozen-lockfile`, `pnpm build` (adapter-node into `build/`), `pnpm prune --prod`. Kit 3 validates required environment variables during the build, so the Dockerfile passes placeholders; none is `static`, so nothing is baked in.
-- **Runtime stage**: copies `node_modules`, `build`, `drizzle/`, `scripts/` and `src/lib/server/db/auth.schema.ts` (for `scripts/users.ts`), runs as `node`, and starts with `node scripts/migrate.ts && node build`, so migrations apply before the new code serves.
+- **Runtime stage**: copies `node_modules`, `build`, `drizzle/`, `scripts/` and `src/lib/server/db/auth.schema.ts` (for `scripts/users.ts`), runs as `node`, and starts with `node scripts/migrate.ts && node build`, so migrations apply before the new code serves. `.dockerignore` excludes only root-level `/*.sql` (local dumps); a broader `*.sql` would drop `drizzle/*.sql` and break migrating a fresh database.
 - Runtime dependencies (`better-auth`, `drizzle-orm`, `postgres`, `valibot`, `@sveltejs/adapter-node`) are in `dependencies` so they survive the prune; the scripts import them directly.
 
 ## Migrations
