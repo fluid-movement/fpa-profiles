@@ -10,7 +10,7 @@ scope:
   - package.json
   - drizzle.config.ts
   - compose.yaml
-confirmed_commit: 525b9d39e7654da733028ac30e90dc60c6808d84
+confirmed_commit: 17dc1a8203582dd8b13ab4fb7a24c322b8156d60
 ---
 
 ## Decision

@@ -12,7 +12,7 @@ scope:
   - src/hooks.server.ts
   - src/lib/auth.remote.ts
   - scripts/users.ts
-confirmed_commit: 3509929d3f9f2b24b113b87b0b5e98dc273a7eba
+confirmed_commit: 17dc1a8203582dd8b13ab4fb7a24c322b8156d60
 ---
 
 ## Sign-in

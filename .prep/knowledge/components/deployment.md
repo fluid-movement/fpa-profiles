@@ -13,7 +13,7 @@ scope:
   - src/env.ts
   - vite.config.ts
   - drizzle/**
-confirmed_commit: 525b9d39e7654da733028ac30e90dc60c6808d84
+confirmed_commit: 17dc1a8203582dd8b13ab4fb7a24c322b8156d60
 ---
 
 Production runs on Coolify from the `Dockerfile` (build pack Dockerfile, port 3000, health check `/healthz`), with its own Postgres resource ([why](/decisions/separate-editor-app.md)).

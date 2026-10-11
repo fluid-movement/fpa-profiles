@@ -11,7 +11,7 @@ scope:
   - src/lib/**/*.remote.ts
   - components.json
   - src/routes/layout.css
-confirmed_commit: de3f9d09232fb5ca59fa4b749ae224dc325c1abe
+confirmed_commit: 17dc1a8203582dd8b13ab4fb7a24c322b8156d60
 ---
 
 This app follows fpa-events' conventions (see its `AGENTS.md`):
