@@ -9,6 +9,7 @@ generated:
 scope:
   - src/routes/**
   - src/lib/**/*.remote.ts
+confirmed_commit: 3509929d3f9f2b24b113b87b0b5e98dc273a7eba
 ---
 
 This app follows fpa-events' conventions (see its `AGENTS.md`):

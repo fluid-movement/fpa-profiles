@@ -10,6 +10,7 @@ scope:
   - src/lib/profile/fields.ts
   - src/lib/server/db/schema.ts
   - src/lib/server/profiles.ts
+confirmed_commit: 3509929d3f9f2b24b113b87b0b5e98dc273a7eba
 ---
 
 ## Registry

@@ -9,6 +9,7 @@ generated:
 scope:
   - src/lib/profile/export.ts
   - src/routes/export/+server.ts
+confirmed_commit: 3509929d3f9f2b24b113b87b0b5e98dc273a7eba
 ---
 
 `GET /export` (`src/routes/export/+server.ts`) is the only way profile data leaves this app. It needs no authentication because it contains only fields the [field registry](/components/profile-fields.md) marks `exported`, and it is sent with `cache-control: no-store`.
