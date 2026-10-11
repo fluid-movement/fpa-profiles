@@ -9,7 +9,7 @@ generated:
 scope:
   - src/lib/legacy/map.ts
   - scripts/import-legacy.ts
-confirmed_commit: 17dc1a8203582dd8b13ab4fb7a24c322b8156d60
+confirmed_commit: 90502a62fa64a0ed0e8a44264c755990840fcf12
 ---
 
 The old FPA WordPress site kept player profiles in the `wp_profiles` table (243 rows, 227 players). `scripts/import-legacy.ts` seeds this app's profiles from a MySQL dump of that site. It is a script, not a database migration, and it is idempotent: re-running it changes nothing unless `--overwrite` is passed.
