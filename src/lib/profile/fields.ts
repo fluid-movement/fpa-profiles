@@ -65,6 +65,13 @@ export const FIELDS: readonly FieldDefinition[] = [
 		type: 'longtext',
 		exported: true
 	},
+	{
+		key: 'sponsors',
+		label: 'Sponsors',
+		help: 'Sponsor names; put their websites under Links.',
+		type: 'longtext',
+		exported: true
+	},
 	{ key: 'links', label: 'Links', help: 'Website, sponsors, social profiles.', type: 'links', exported: true }
 ];
 

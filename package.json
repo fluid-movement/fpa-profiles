@@ -20,7 +20,8 @@
 		"auth:schema": "auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes",
 		"migrate": "node --env-file-if-exists=.env scripts/migrate.ts",
 		"users": "node --env-file-if-exists=.env scripts/users.ts",
-		"start": "node scripts/migrate.ts && node build"
+		"start": "node scripts/migrate.ts && node build",
+		"import:legacy": "node --env-file-if-exists=.env scripts/import-legacy.ts"
 	},
 	"devDependencies": {
 		"@internationalized/date": "^3.12.4",

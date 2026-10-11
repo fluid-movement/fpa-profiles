@@ -1,0 +1,6 @@
+- [x] Every legacy profile whose player resolves through fpa-api is imported with legacy_id and updated_by import; unresolved ones are reported, not guessed
+- [x] Field mapping follows the agreed decision; HTML is converted (bio to Markdown, other fields to plain text) and entities decoded
+- [x] Emails, passwords and the other excluded fields are never read into the new store
+- [x] Values failing registry validation are dropped field by field and reported
+- [x] A dry run reports what would happen without writing; existing profiles are never overwritten without --overwrite
+- [x] Unit tests cover the mapping and HTML conversion

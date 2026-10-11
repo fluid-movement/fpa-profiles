@@ -1,0 +1,3 @@
+- Mapping lives in `src/lib/legacy/map.ts` (pure, unit-tested); `scripts/import-legacy.ts` parses the dump, resolves players, and writes through `normalizeFields` ([field registry](/components/profile-fields.md)).
+- The dump parser reads only the `wp_profiles` INSERT statements, and the mapper only touches the columns the field mapping names.
+- Source analysis: fpa-api issue 01M4N2FFB70GV9SE7V23AVT651.

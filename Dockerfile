@@ -38,8 +38,11 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/scripts ./scripts
-# scripts/users.ts imports the Better Auth tables.
-COPY --from=builder /app/src/lib/server/db/auth.schema.ts ./src/lib/server/db/auth.schema.ts
+# The scripts import these source modules directly (users: the Better Auth
+# tables; import-legacy: the schema, the field registry and the legacy mapping).
+COPY --from=builder /app/src/lib/server/db/auth.schema.ts /app/src/lib/server/db/schema.ts ./src/lib/server/db/
+COPY --from=builder /app/src/lib/profile ./src/lib/profile
+COPY --from=builder /app/src/lib/legacy ./src/lib/legacy
 COPY package.json ./
 
 USER node

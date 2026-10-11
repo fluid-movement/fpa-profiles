@@ -17,5 +17,6 @@ Stack: SvelteKit 3 with TypeScript, Drizzle ORM on Postgres (postgres.js), Bette
 - [Profile field registry and storage](/components/profile-fields.md): where fields are defined and how they are validated and stored
 - [Profile export for fpa-api](/features/profile-export.md): the public feed and its contract
 - [Editor sign-in and accounts](/features/editor-accounts.md): Better Auth, the route guard, the users script
+- [Legacy profile import](/features/legacy-import.md): seeding profiles from the old WordPress site
 - [Build and deployment](/components/deployment.md): Dockerfile, migrations, environment
 - [SvelteKit conventions](/conventions/sveltekit.md): remote functions, form fields, runes

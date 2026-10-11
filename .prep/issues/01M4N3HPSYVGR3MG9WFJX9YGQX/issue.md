@@ -8,8 +8,6 @@ tags:
   - profiles
 ---
 
-A one-off script reads the local WordPress dump (never committed) and writes profiles into the database, matching each legacy player to a canonical upstream player. Legacy ids sit on alias records for 127 of 227 players, so matching resolves `fpaWebsiteId` through the upstream alias chain (all 227 then map to exactly one canonical player). Plaintext passwords and emails are never read into the new store. The script is run once and kept out of the committed migrations.
+A one-off script reads the local WordPress dump (never committed) and writes profiles into the database, matching each legacy player to a canonical upstream player. Legacy ids sit on alias records for 127 of 227 players, so matching goes through fpa-api's `GET /players?fpaWebsiteId=`, which searches across aliases (all 227 map to exactly one canonical player). Plaintext passwords and emails are never read into the new store. The script is kept in the repository so it can be run against production, but it is not a database migration.
 
 ## Open questions
-
-- Which of the 16 duplicate legacy profiles wins (assumption: the higher `profile_id`)?
