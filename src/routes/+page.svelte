@@ -8,7 +8,7 @@
 	import { Badge } from '#lib/components/ui/badge/index.ts';
 	import { Separator } from '#lib/components/ui/separator/index.ts';
 	import * as Pagination from '#lib/components/ui/pagination/index.ts';
-	import * as RadioGroup from '#lib/components/ui/radio-group/index.ts';
+	import * as ToggleGroup from '#lib/components/ui/toggle-group/index.ts';
 	import { DEFAULT_PAGE_SIZE, PAGE_SIZES, type PageSize } from '#lib/page-sizes.ts';
 	import { findPlayers } from './data.remote.ts';
 
@@ -67,7 +67,7 @@
 
 <div class="mb-6 space-y-1">
 	<h1 class="text-2xl font-semibold tracking-tight">Players</h1>
-	<p class="text-muted-foreground">Players come from the FPA data; find one to add or edit their profile.</p>
+	<p class="text-muted-foreground">Players come from the FPA data. Find one to add or edit their profile.</p>
 </div>
 
 <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -119,19 +119,21 @@
 	{/if}
 	<div class="flex items-center gap-3">
 		<span class="text-sm text-muted-foreground" id="page-size-label">Per page</span>
-		<RadioGroup.Root
+		<ToggleGroup.Root
+			type="single"
+			variant="outline"
 			bind:value={sizeChoice}
-			onValueChange={(value) => applyFilters({ q: typed, size: Number(value) })}
+			onValueChange={(value) => {
+				// A single toggle group lets the active item be switched off; keep one selected.
+				if (value) applyFilters({ q: typed, size: Number(value) });
+				else sizeChoice = String(size);
+			}}
 			aria-labelledby="page-size-label"
-			class="flex gap-4"
 		>
 			{#each PAGE_SIZES as option (option)}
-				<div class="flex items-center gap-2">
-					<RadioGroup.Item value={String(option)} id="size-{option}" />
-					<Label for="size-{option}">{option}</Label>
-				</div>
+				<ToggleGroup.Item value={String(option)} aria-label="{option} per page">{option}</ToggleGroup.Item>
 			{/each}
-		</RadioGroup.Root>
+		</ToggleGroup.Root>
 	</div>
 </div>
 
