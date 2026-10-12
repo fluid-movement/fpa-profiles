@@ -1,0 +1,5 @@
+- [x] Pagination (shadcn-svelte Pagination) shows between the search row and the list
+- [x] Page size radio (shadcn-svelte RadioGroup) with 20, 50, 100 sits next to the pagination; default 20
+- [x] Page count follows the filtered results; page resets to 1 when the filter, profile toggle or size changes
+- [x] Page and size are in the URL and restored on back navigation
+- [x] Editor-pages knowledge entry updated

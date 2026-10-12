@@ -3,8 +3,8 @@ import { query } from '$app/server';
 import { requireEditor } from '#lib/server/authz.ts';
 import { allPlayers } from '#lib/server/fpa-api.ts';
 import { profiledPlayerIds } from '#lib/server/profiles.ts';
+import { PAGE_SIZES } from '#lib/page-sizes.ts';
 
-const LIMIT = 100;
 
 /**
  * The player list behind the search page: fpa-api's players filtered by name
@@ -14,9 +14,11 @@ const LIMIT = 100;
 export const findPlayers = query(
 	v.object({
 		q: v.pipe(v.string(), v.trim(), v.maxLength(100)),
-		withProfile: v.boolean()
+		withProfile: v.boolean(),
+		page: v.pipe(v.number(), v.integer(), v.minValue(1)),
+		size: v.picklist(PAGE_SIZES)
 	}),
-	async ({ q, withProfile }) => {
+	async ({ q, withProfile, page, size }) => {
 		requireEditor();
 		const [players, profiled] = await Promise.all([allPlayers(), profiledPlayerIds()]);
 
@@ -26,9 +28,15 @@ export const findPlayers = query(
 			.filter((player) => !withProfile || profiled.has(player.id))
 			.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
+		// An out-of-range page (a stale link, a shrunk result) lands on the last one.
+		const pageCount = Math.max(1, Math.ceil(matches.length / size));
+		const current = Math.min(page, pageCount);
+
 		return {
 			total: matches.length,
-			players: matches.slice(0, LIMIT).map((player) => ({
+			page: current,
+			pageCount,
+			players: matches.slice((current - 1) * size, current * size).map((player) => ({
 				id: player.id,
 				fullName: player.fullName,
 				country: player.country,
